@@ -157,7 +157,7 @@ cod g = g ^^^ id
 -- The argument order in (^^^) is opposite that of concat.
 
 class (Monoidal p k, Closed e k) => MonoidalClosed p e k where
-  curry   :: Obj3 k a b c => ((a `p` b) `k` c)   -> (a `k` (b `e` c))
+  curry   :: Obj3 k a b c => ((a `p` b) `k` c) -> (a `k` (b `e` c))
   uncurry :: Obj3 k a b c => (a `k` (b `e` c)) -> ((a `p` b) `k` c)
   apply   :: Obj2 k a b => ((a `e` b) `p` a) `k` b
   apply = uncurry id

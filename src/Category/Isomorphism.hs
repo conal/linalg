@@ -88,10 +88,8 @@ joinIso = join :<-> unjoin
 forkIso :: (CartesianR r p k, Obj2 k a b) => r (a `k` b) <-> (a `k` p r b)
 forkIso = fork :<-> unfork
 
-curryIso :: ((a :* b) -> c) <-> (a -> (b -> c))
+curryIso :: (MonoidalClosed p e k, Obj3 k a b c) => ((a `p` b) `k` c) <-> (a `k` (b `e` c))
 curryIso = curry :<-> uncurry
-
--- TODO: generalize curry from (->) to cartesian closed
 
 newIso :: Newtype a => a <-> O a
 newIso = unpack :<-> pack
@@ -114,3 +112,13 @@ type f <--> g = forall a. f a <-> g a
 
 fmapIso :: Functor f => a <-> b -> f a <-> f b
 fmapIso (f :<-> g) = (fmap f :<-> fmap g)
+
+flipIso :: (a -> b -> c) <-> (b -> a -> c)
+flipIso = flip :<-> flip
+
+distributeIso :: (Representable f, Representable g) => f (g a) <-> g (f a)
+-- distributeIso = inv repIso . fmapIso (inv repIso) . flipIso . fmapIso repIso . repIso
+distributeIso = distribute :<-> distribute
+
+collectIso :: (Representable f, Representable g) => f a <-> b -> f (g a) <-> g b
+collectIso f = fmapIso f . distributeIso

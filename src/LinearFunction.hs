@@ -11,6 +11,9 @@ import Category.Isomorphism
 
 -- | Linear functions
 newtype L (s :: *) a b = L { unL :: a s -> b s }
+  deriving (Generic)
+
+instance Newtype (L s a b)
 
 instance Category (L s) where
   type Obj' (L s) a = Representable a

@@ -5,10 +5,11 @@
 module Misc where
 
 import qualified Prelude as P
-import Prelude hiding ((+),sum,(*),unzip)
+import Prelude hiding ((+),sum,(*),unzip, product)
 import GHC.Types (Constraint)
-import GHC.Generics ((:*:)(..),(:+:)(..))
+import GHC.Generics ((:*:)(..),(:+:)(..), Generic, Generic1)
 import Control.Newtype.Generics
+import Data.Coerce (coerce)
 
 import Data.Functor.Rep
 
@@ -65,11 +66,53 @@ instance Semiring Double where { one  = 1 ; (*) = (P.*) }
 instance Additive Bool where { zero = False ; (+) = (||) }
 instance Semiring Bool where { one  = True  ; (*) = (&&) }
 
-sum :: (Foldable f, Additive a) => f a -> a
-sum = foldr (+) zero
+newtype Sum a = Sum { getSum :: a }
+  deriving (Eq, Ord, Read, Show, Bounded, Generic, Generic1, Num, Additive, Semiring)
 
--- To do: maybe replace `foldr` by `foldl` or `foldl'`. Does a strict left fold
--- help at all, considering that our "vectors" aren't flat?
+instance Newtype (Sum a)
+
+instance Additive a => Semigroup (Sum a) where
+  (<>) = (+)
+
+instance Additive a => Monoid (Sum a) where
+  mempty = zero
+
+instance Functor Sum where
+  fmap = coerce
+
+instance Applicative Sum where
+  pure  = Sum
+  (<*>) = coerce
+
+instance Monad Sum where
+  m >>= k = k (getSum m)
+
+newtype Product a = Product { getProduct :: a }
+  deriving (Eq, Ord, Read, Show, Bounded, Generic, Generic1, Num, Additive, Semiring)
+
+instance Newtype (Product a)
+
+instance Semiring a => Semigroup (Product a) where
+  (<>) = (*)
+
+instance Semiring a => Monoid (Product a) where
+  mempty = one
+
+instance Functor Product where
+  fmap = coerce
+
+instance Applicative Product where
+  pure  = Product
+  (<*>) = coerce
+
+instance Monad Product where
+  m >>= k = k (getProduct m)
+
+sum :: (Foldable f, Additive a) => f a -> a
+sum = ala Sum foldMap
+
+product :: (Foldable f, Semiring a) => f a -> a
+product = ala Product foldMap
 
 -- Zero vector
 zeroV :: (Representable a, Additive s) => a s

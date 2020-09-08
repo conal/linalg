@@ -59,6 +59,7 @@ library:
     - Category
     - Orphans
     - LinearFunction
+    - RowMajor
     - InductiveMatrix # coming
     - LinAlg          # going
     - CatPrelude
