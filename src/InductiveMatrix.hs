@@ -41,7 +41,7 @@ data L :: * -> (* -> *) -> (* -> *) -> * where
         => r (L s a b) -> L s (r :.: a) b
   ForkL :: (C2 V a b, VR r) => r (L s a b) -> L s a (r :.: b)
 
-instance LinearMap L where
+instance LinearMap s (L s) where
   mu = fwd :<-> rev
    where
      fwd :: L s a b -> F.L s a b
